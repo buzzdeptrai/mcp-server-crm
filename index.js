@@ -43,21 +43,28 @@ const tools = [
   }
 ];
 
-// ✅ Phải trả đúng event: init + charset=utf-8
+
+
 app.get("/sse", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // 👈 Quan trọng!
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-
-  const payload = {
-    status: "ready",
-    tools
-  };
+  const payload = { status: "ready", tools };
 
   res.write(`event: init\ndata: ${JSON.stringify(payload)}\n\n`);
+
+  // 👇 Giữ connection sống bằng ping comment
+  const keepAliveInterval = setInterval(() => {
+    res.write(':\n\n'); // ping để Cloudflare không timeout
+  }, 15000); // 15s
+
+  req.on("close", () => {
+    clearInterval(keepAliveInterval);
+  });
 });
+
 
 app.post("/call", async (req, res) => {
   const { function_call, arguments: args } = req.body;
