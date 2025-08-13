@@ -64,12 +64,62 @@ const tools = [
 //     clearInterval(keepAliveInterval);
 //   });
 // });
+
+app.get("/sse_v3", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "close");
+
+  const tools = [
+    {
+      name: "search_booking",
+      description: "Tìm thông tin booking theo tên khách",
+      parameters: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Tên khách cần tìm" }
+        },
+        required: ["name"]
+      }
+    },
+    {
+      name: "confirm_booking",
+      description: "Xác nhận booking với thông tin khách",
+      parameters: {
+        type: "object",
+        properties: {
+          bookingId: {
+            type: "string",
+            description: "Mã booking"
+          },
+          guest: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              email: { type: "string" },
+              phone: { type: "string" }
+            },
+            required: ["name", "email", "phone"]
+          }
+        },
+        required: ["bookingId", "guest"]
+      }
+    }
+  ];
+
+  res.write(`event: init\ndata: ${JSON.stringify({ status: "ready", tools })}\n\n`);
+  res.end();
+});
+
+
 app.get("/sse", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "close"); // 👈 đóng sau khi gửi xong
 
+  
   const payload = {
     status: "ready",
     tools: [
@@ -109,6 +159,8 @@ app.get("/sse", (req, res) => {
       }
     ]
   };
+  res.write(`event: init\ndata: ${JSON.stringify(payload)}\n\n`);
+  res.end();
 
   // 👇 Gửi event init rồi đóng luôn kết nối
   res.write(`event: init\ndata: ${JSON.stringify(payload)}\n\n`);
@@ -164,6 +216,8 @@ app.get("/sse_bak", (req, res) => {
 
   // Gửi tools lần đầu
   res.write(`event: init\ndata: ${JSON.stringify(payload)}\n\n`);
+
+
 
   // Keep connection alive mỗi 15s để Cloudflare không timeout
   const keepAlive = setInterval(() => {

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MCP Tool Import Tester</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    input { padding: 8px; width: 400px; }
+    button { padding: 8px 12px; margin-left: 8px; }
+    pre { background: #f5f5f5; padding: 1em; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h2>🧪 MCP Import Tool Tester (Giống RowBoat Labs)</h2>
+  <input id="sseUrl" placeholder="Nhập URL SSE, ví dụ: https://.../sse">
+  <button onclick="connect()">Kết nối</button>
+
+  <h3>Kết quả:</h3>
+  <div id="status">⏳ Chưa kết nối</div>
+  <pre id="output">...</pre>
+
+  <script>
+    function connect() {
+      const url = document.getElementById("sseUrl").value;
+      const statusEl = document.getElementById("status");
+      const outputEl = document.getElementById("output");
+
+      if (!url) {
+        alert("Bạn chưa nhập URL!");
+        return;
+      }
+
+      statusEl.textContent = "🔄 Đang kết nối...";
+      outputEl.textContent = "";
+
+      const source = new EventSource(url);
+
+      source.addEventListener("init", (event) => {
+        const data = JSON.parse(event.data);
+        console.log("Tools:", data);
+
+        if (!data.tools || !Array.isArray(data.tools)) {
+          statusEl.textContent = "❌ Không tìm thấy tools hợp lệ.";
+          outputEl.textContent = JSON.stringify(data, null, 2);
+          return;
+        }
+
+        statusEl.textContent = `✅ Nhận ${data.tools.length} tools thành công!`;
+        outputEl.textContent = JSON.stringify(data.tools, null, 2);
+
+        source.close(); // đóng luôn sau khi nhận init
+      });
+
+      source.onerror = (err) => {
+        statusEl.textContent = "❌ Kết nối lỗi hoặc không nhận được dữ liệu.";
+        outputEl.textContent = JSON.stringify(err, null, 2);
+        source.close();
+      };
+    }
+  </script>
+</body>
+</html>
