@@ -45,11 +45,17 @@ const tools = [
 
 // ✅ Phải trả đúng event: init + charset=utf-8
 app.get("/sse", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*"); // 👈 Quan trọng!
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  const payload = { status: "ready", tools };
+
+  const payload = {
+    status: "ready",
+    tools
+  };
+
   res.write(`event: init\ndata: ${JSON.stringify(payload)}\n\n`);
 });
 
