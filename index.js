@@ -113,7 +113,7 @@ app.get("/sse_v3", (req, res) => {
 });
 
 
-app.get("/sse", (req, res) => {
+app.get("/sse_bak2", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
@@ -168,7 +168,7 @@ app.get("/sse", (req, res) => {
 });
 
 
-app.get("/sse_bak", (req, res) => {
+app.get("/sse", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
