@@ -6,7 +6,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 👇 Danh sách tools trả về cho agent (RowBoat Labs, AutoGen, v.v.)
 const tools = [
   {
     name: "search_booking",
@@ -44,25 +43,16 @@ const tools = [
   }
 ];
 
-// 👇 Endpoint SSE — trả về tools cho RowBoat Labs
+// ✅ Phải trả đúng event: init + charset=utf-8
 app.get("/sse", (req, res) => {
-  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  const initPayload = {
-    status: "ready",
-    tools
-  };
-
-  res.write(`event: init\ndata: ${JSON.stringify(initPayload)}\n\n`);
-
-  req.on("close", () => {
-    console.log("SSE connection closed");
-  });
+  const payload = { status: "ready", tools };
+  res.write(`event: init\ndata: ${JSON.stringify(payload)}\n\n`);
 });
 
-// 👇 Endpoint để gọi tool thật sự (hàm xử lý backend)
 app.post("/call", async (req, res) => {
   const { function_call, arguments: args } = req.body;
 
