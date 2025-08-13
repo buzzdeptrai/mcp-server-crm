@@ -68,6 +68,58 @@ app.get("/sse", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "close"); // 👈 đóng sau khi gửi xong
+
+  const payload = {
+    status: "ready",
+    tools: [
+      {
+        name: "search_booking",
+        description: "Tìm thông tin booking theo tên khách",
+        parameters: {
+          type: "object",
+          properties: {
+            name: {
+              type: "string",
+              description: "Tên khách cần tìm"
+            }
+          },
+          required: ["name"]
+        }
+      },
+      {
+        name: "confirm_booking",
+        description: "Xác nhận booking với thông tin khách",
+        parameters: {
+          type: "object",
+          properties: {
+            bookingId: { type: "string", description: "Mã booking" },
+            guest: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                email: { type: "string" },
+                phone: { type: "string" }
+              },
+              required: ["name", "email", "phone"]
+            }
+          },
+          required: ["bookingId", "guest"]
+        }
+      }
+    ]
+  };
+
+  // 👇 Gửi event init rồi đóng luôn kết nối
+  res.write(`event: init\ndata: ${JSON.stringify(payload)}\n\n`);
+  res.end(); // 👈 Kết thúc luôn
+});
+
+
+app.get("/sse_bak", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
   const payload = {
